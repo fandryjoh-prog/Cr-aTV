@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CréaTV</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;background:#f5f0e8;min-height:100vh;padding:20px;}
+.app{border:1px solid #e0d5c5;border-radius:16px;overflow:hidden;background:#f5f0e8;max-width:960px;margin:0 auto;}
+.app[data-theme="warm"]{--a:#EF9F27;--ad:#412402;--am:#854F0B;--ab:#FAEEDA;--ab2:#FAC775;--bg:#fff;--bg2:#f5f0e8;--bd:#e0d5c5;--tx:#1a1209;--tx2:#6b5533;}
+.app[data-theme="night"]{--a:#7F77DD;--ad:#26215C;--am:#534AB7;--ab:#EEEDFE;--ab2:#AFA9EC;--bg:#fff;--bg2:#f0effe;--bd:#d0cdf0;--tx:#1a1830;--tx2:#534AB7;}
+.app[data-theme="teal"]{--a:#1D9E75;--ad:#04342C;--am:#0F6E56;--ab:#E1F5EE;--ab2:#5DCAA5;--bg:#fff;--bg2:#eaf7f2;--bd:#c0e8d8;--tx:#04201a;--tx2:#0F6E56;}
+.app[data-theme="coral"]{--a:#D85A30;--ad:#4A1B0C;--am:#993C1D;--ab:#FAECE7;--ab2:#F0997B;--bg:#fff;--bg2:#faf0ec;--bd:#e8cfc5;--tx:#2a0e06;--tx2:#993C1D;}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--bg);border-bottom:1px solid var(--bd);}
+.logo{width:30px;height:30px;background:var(--a);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo i{color:var(--ad);font-size:15px;}
+.tabs{display:flex;gap:3px;}
+.tab{font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer;color:var(--tx2);border:none;background:transparent;font-family:inherit;}
+.tab.on{background:var(--a);color:var(--ad);font-weight:600;}
+.tab:hover:not(.on){background:var(--bg2);}
+.tdot{width:17px;height:17px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+.tdot.sel{border-color:var(--tx);}
+.btn-add{background:var(--a);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--ad);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;}
+.main{padding:20px;}
+.page{display:none;}
+.page.on{display:block;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.sc{border-radius:10px;padding:14px 16px;}
+.sc.acc{background:var(--ab);}
+.sc.plain{background:var(--bg);border:1px solid var(--bd);}
+.sc-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.sc.acc .sc-lbl{color:var(--am);}
+.sc.plain .sc-lbl{color:var(--tx2);}
+.sc-val{font-size:24px;font-weight:600;}
+.sc.acc .sc-val{color:var(--ad);}
+.sc.plain .sc-val{color:var(--tx);}
+.sc-sub{font-size:11px;margin-top:3px;}
+.sc.acc .sc-sub{color:var(--am);}
+.sc.plain .sc-sub{color:var(--tx2);}
+.prog{height:4px;border-radius:4px;background:var(--bg2);margin-top:8px;overflow:hidden;}
+.prog-f{height:100%;border-radius:4px;background:var(--a);}
+.grid2{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;}
+.card{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:15px 17px;}
+.card-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:13px;}
+.proj-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);}
+.proj-row:last-child{border-bottom:none;}
+.pname{font-size:13px;color:var(--tx);font-weight:500;}
+.psub{font-size:11px;color:var(--tx2);margin-top:2px;}
+.pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;white-space:nowrap;}
+.pill.acc{background:var(--ab);color:var(--am);}
+.pill.muted{background:var(--bg2);color:var(--tx2);}
+.agenda-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--bd);}
+.agenda-row:last-child{border-bottom:none;}
+.adate{text-align:center;min-width:32px;}
+.aday{font-size:16px;font-weight:600;color:var(--a);line-height:1;}
+.amon{font-size:10px;color:var(--tx2);text-transform:uppercase;}
+.abar{width:3px;background:var(--ab2);border-radius:3px;flex-shrink:0;min-height:36px;}
+.ai-card{background:var(--ab);border-radius:12px;padding:15px 17px;}
+.ai-chip{background:rgba(255,255,255,0.65);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--am);cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:6px;border:none;width:100%;text-align:left;font-family:inherit;font-weight:500;}
+.ai-chip:hover{background:rgba(255,255,255,0.92);}
+.ai-inp{flex:1;border:1px solid var(--ab2);border-radius:8px;padding:8px 10px;font-size:12px;background:rgba(255,255,255,0.55);color:var(--ad);outline:none;font-family:inherit;}
+.ai-send{background:var(--a);border:none;border-radius:8px;padding:8px 12px;cursor:pointer;color:var(--ad);}
+.ai-resp{background:rgba(255,255,255,0.82);border-radius:8px;padding:11px 13px;font-size:12px;color:var(--ad);line-height:1.7;margin-top:10px;display:none;white-space:pre-wrap;}
+.ai-load{display:none;font-size:11px;color:var(--am);margin-top:8px;}
+.ideas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.idea-card{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:14px;}
+.idea-card:hover{border-color:var(--a);}
+.ibadge{font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600;display:inline-block;margin-bottom:7px;}
+.ibadge.p{background:var(--ab);color:var(--am);}
+.ibadge.d{background:var(--bg2);color:var(--tx2);}
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.kol{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:13px;}
+.kol-t{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tx2);margin-bottom:10px;}
+.ktask{background:var(--bg2);border-radius:8px;padding:9px 10px;margin-bottom:7px;}
+.ktask.urg{border-left:3px solid var(--a);border-radius:0 8px 8px 0;}
+.kname{font-size:12px;font-weight:500;color:var(--tx);}
+.ksub{font-size:11px;color:var(--tx2);margin-top:2px;}
+.slist{display:flex;flex-direction:column;gap:9px;}
+.sitem{display:flex;gap:13px;align-items:flex-start;background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:13px 15px;}
+.snum{font-size:18px;font-weight:600;color:var(--a);min-width:24px;}
+.nbadge{background:var(--ab);color:var(--am);font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:6px;}
+.sech{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.slink{font-size:11px;color:var(--a);cursor:pointer;background:none;border:none;font-family:inherit;}
+.b-track{flex:1;height:5px;border-radius:5px;background:var(--bg2);overflow:hidden;}
+.b-fill{height:100%;border-radius:5px;background:var(--a);}
+.budget-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd);}
+.budget-row:last-child{border-bottom:none;}
+.typing-cursor{display:inline-block;width:2px;height:13px;background:var(--ad);margin-left:2px;vertical-align:middle;animation:blink .7s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+</style>
+</head>
+<body>
+<div class="app" data-theme="warm" id="app">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div class="logo"><i class="ti ti-device-tv"></i></div>
+      <span style="font-size:15px;font-weight:700;color:var(--tx);">CréaTV</span>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="nav(this,'dash')"><i class="ti ti-layout-dashboard"></i> Accueil</button>
+      <button class="tab" onclick="nav(this,'ideas')"><i class="ti ti-bulb"></i> Idées</button>
+      <button class="tab" onclick="nav(this,'plan')"><i class="ti ti-calendar"></i> Planning</button>
+      <button class="tab" onclick="nav(this,'tasks')"><i class="ti ti-checklist"></i> Tâches</button>
+      <button class="tab" onclick="nav(this,'scripts')"><i class="ti ti-file-text"></i> Scripts</button>
+      <button class="tab" onclick="nav(this,'budget')"><i class="ti ti-coin"></i> Budget</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="display:flex;gap:5px;align-items:center;">
+        <div class="tdot sel" style="background:#EF9F27;" onclick="theme('warm',this)" title="Chaud"></div>
+        <div class="tdot" style="background:#7F77DD;" onclick="theme('night',this)" title="Nuit"></div>
+        <div class="tdot" style="background:#1D9E75;" onclick="theme('teal',this)" title="Forêt"></div>
+        <div class="tdot" style="background:#D85A30;" onclick="theme('coral',this)" title="Corail"></div>
+      </div>
+      <button class="btn-add"><i class="ti ti-plus"></i> Créer</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ACCUEIL -->
+    <div class="page on" id="dash">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:17px;">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:var(--tx);">Bonjour 👋</div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:4px;">3 tournages cette semaine · 4 tâches urgentes</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="sc acc"><div class="sc-lbl">Idées</div><div class="sc-val">14</div><div class="sc-sub">3 prioritaires</div></div>
+        <div class="sc plain"><div class="sc-lbl">Projets actifs</div><div class="sc-val">7</div><div class="sc-sub">2 en tournage</div></div>
+        <div class="sc plain"><div class="sc-lbl">Tâches</div><div class="sc-val">12</div><div class="sc-sub">4 urgentes</div></div>
+        <div class="sc plain"><div class="sc-lbl">Budget</div><div class="sc-val">84%</div><div class="prog"><div class="prog-f" style="width:84%"></div></div></div>
+      </div>
+      <div class="grid2">
+        <div style="display:flex;flex-direction:column;gap:13px;">
+          <div class="card">
+            <div class="sech"><span class="card-title" style="margin:0;">Projets en cours</span><button class="slink" onclick="nav(document.querySelectorAll('.tab')[1],'ideas')">Voir tout →</button></div>
+            <div class="proj-row"><div><div class="pname">L'Art de vivre — Saison 2</div><div class="psub">Tournage · 14 juin · Antananarivo</div></div><span class="pill acc">En tournage</span></div>
+            <div class="proj-row"><div><div class="pname">Cuisine du monde</div><div class="psub">Développement concept · priorité haute</div></div><span class="pill acc">Idée</span></div>
+            <div class="proj-row"><div><div class="pname">Portraits de femmes</div><div class="psub">Post-production · livraison 30 juin</div></div><span class="pill muted">Post-prod</span></div>
+            <div class="proj-row"><div><div class="pname">Mode africaine</div><div class="psub">Script en cours · 3 épisodes</div></div><span class="pill muted">Script</span></div>
+          </div>
+          <div class="card">
+            <div class="sech"><span class="card-title" style="margin:0;">Agenda tournages</span><button class="slink" onclick="nav(document.querySelectorAll('.tab')[2],'plan')">Calendrier →</button></div>
+            <div class="agenda-row"><div class="adate"><div class="aday">14</div><div class="amon">juin</div></div><div class="abar"></div><div><div style="font-size:13px;font-weight:500;color:var(--tx);">L'Art de vivre S2 — Ep. 3</div><div style="font-size:11px;color:var(--tx2);margin-top:2px;">Studio central · 9h–17h</div></div></div>
+            <div class="agenda-row"><div class="adate"><div class="aday">18</div><div class="amon">juin</div></div><div class="abar"></div><div><div style="font-size:13px;font-weight:500;color:var(--tx);">Portraits de femmes — Interview</div><div style="font-size:11px;color:var(--tx2);margin-top:2px;">Extérieur · 14h–18h · 2 invitées</div></div></div>
+            <div class="agenda-row"><div class="adate"><div class="aday">22</div><div class="amon">juin</div></div><div class="abar"></div><div><div style="font-size:13px;font-weight:500;color:var(--tx);">Cuisine du monde — Repérage</div><div style="font-size:11px;color:var(--tx2);margin-top:2px;">Marché central · 10h–12h</div></div></div>
+          </div>
+        </div>
+
+        <!-- ASSISTANT PREMIUM -->
+        <div class="ai-card">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+            <i class="ti ti-cpu" style="font-size:16px;color:var(--a);"></i>
+            <span style="font-size:13px;font-weight:700;color:var(--ad);">Assistant Premium</span>
+            <span style="font-size:10px;background:var(--a);color:var(--ad);padding:2px 7px;border-radius:10px;font-weight:700;margin-left:auto;">PRO</span>
+          </div>
+          <div style="font-size:12px;color:var(--am);margin-bottom:12px;line-height:1.5;">Analyse intelligente · Suggestions contextuelles</div>
+          <button class="ai-chip" onclick="engine('ideas')"><i class="ti ti-bulb" style="font-size:13px;color:var(--a);"></i> Générer des idées d'émissions</button>
+          <button class="ai-chip" onclick="engine('script')"><i class="ti ti-file-text" style="font-size:13px;color:var(--a);"></i> Rédiger un script</button>
+          <button class="ai-chip" onclick="engine('checklist')"><i class="ti ti-checklist" style="font-size:13px;color:var(--a);"></i> Checklist tournage extérieur</button>
+          <button class="ai-chip" onclick="engine('budget')"><i class="ti ti-coin" style="font-size:13px;color:var(--a);"></i> Optimiser le budget</button>
+          <button class="ai-chip" onclick="engine('planning')"><i class="ti ti-calendar" style="font-size:13px;color:var(--a);"></i> Suggestions planning</button>
+          <div style="display:flex;gap:6px;margin-top:10px;">
+            <input class="ai-inp" id="ai-q" placeholder="Votre question..." />
+            <button class="ai-send" onclick="engineFree()" title="Analyser"><i class="ti ti-search" style="font-size:14px;"></i></button>
+          </div>
+          <div class="ai-load" id="ai-load"><i class="ti ti-loader"></i> Analyse en cours...</div>
+          <div class="ai-resp" id="ai-resp"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IDÉES -->
+    <div class="page" id="ideas">
+      <div class="sech">
+        <span style="font-size:15px;font-weight:600;color:var(--tx);">Idées d'émissions</span>
+        <button class="btn-add" onclick="nav(document.querySelectorAll('.tab')[0],'dash');engine('ideas')"><i class="ti ti-cpu"></i> Générer</button>
+      </div>
+      <div class="ideas-grid">
+        <div class="idea-card"><span class="ibadge p">Prioritaire</span><div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;">L'Art de vivre S2</div><div style="font-size:11px;color:var(--tx2);">Lifestyle · Documentaire</div></div>
+        <div class="idea-card"><span class="ibadge p">Prioritaire</span><div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;">Cuisine du monde</div><div style="font-size:11px;color:var(--tx2);">Gastronomie · Voyage</div></div>
+        <div class="idea-card"><span class="ibadge p">Prioritaire</span><div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;">Mode africaine</div><div style="font-size:11px;color:var(--tx2);">Mode · Culture</div></div>
+        <div class="idea-card"><span class="ibadge d">En développement</span><div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;">Femmes entrepreneurs</div><div style="font-size:11px;color:var(--tx2);">Business · Société</div></div>
+        <div class="idea-card"><span class="ibadge d">En développement</span><div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;">Jeunesse & Avenir</div><div style="font-size:11px;color:var(--tx2);">Éducation · Jeunesse</div></div>
+        <div class="idea-card" style="border:1px dashed var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="nav(document.querySelectorAll('.tab')[0],'dash');engine('ideas')">
+          <span style="font-size:12px;color:var(--tx2);"><i class="ti ti-plus"></i> Nouvelle idée</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANNING -->
+    <div class="page" id="plan">
+      <div class="sech">
+        <span style="font-size:15px;font-weight:600;color:var(--tx);">Planning — Juin 2025</span>
+        <button class="btn-add" onclick="nav(document.querySelectorAll('.tab')[0],'dash');engine('planning')"><i class="ti ti-cpu"></i> Optimiser</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Tournages prévus</div>
+        <div class="agenda-row"><div class="adate"><div class="aday">14</div><div class="amon">juin</div></div><div class="abar"></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--tx);">L'Art de vivre S2 — Épisode 3</div><div style="font-size:11px;color:var(--tx2);">Studio central · 9h–17h · Matériel confirmé</div></div><span class="pill acc">Confirmé</span></div>
+        <div class="agenda-row"><div class="adate"><div class="aday">18</div><div class="amon">juin</div></div><div class="abar"></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--tx);">Portraits de femmes — Interview finale</div><div style="font-size:11px;color:var(--tx2);">Extérieur · 14h–18h · 2 invitées</div></div><span class="pill acc">Confirmé</span></div>
+        <div class="agenda-row"><div class="adate"><div class="aday">22</div><div class="amon">juin</div></div><div class="abar"></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--tx);">Cuisine du monde — Repérage</div><div style="font-size:11px;color:var(--tx2);">Marché central · 10h–12h</div></div><span class="pill muted">Prévu</span></div>
+        <div class="agenda-row"><div class="adate"><div class="aday">27</div><div class="amon">juin</div></div><div class="abar"></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--tx);">Mode africaine — Ep. 1</div><div style="font-size:11px;color:var(--tx2);">Studio B · journée complète</div></div><span class="pill muted">Prévu</span></div>
+      </div>
+    </div>
+
+    <!-- TÂCHES -->
+    <div class="page" id="tasks">
+      <div class="sech">
+        <span style="font-size:15px;font-weight:600;color:var(--tx);">Tâches & Checklists</span>
+        <button class="btn-add" onclick="nav(document.querySelectorAll('.tab')[0],'dash');engine('checklist')"><i class="ti ti-cpu"></i> Checklist auto</button>
+      </div>
+      <div class="kanban">
+        <div class="kol">
+          <div class="kol-t">À faire</div>
+          <div class="ktask urg"><div class="kname">Confirmer matériel son</div><div class="ksub">L'Art de vivre S2 · urgent</div></div>
+          <div class="ktask urg"><div class="kname">Finaliser script Ep. 3</div><div class="ksub">L'Art de vivre · urgent</div></div>
+          <div class="ktask"><div class="kname">Contacter invitées</div><div class="ksub">Portraits de femmes</div></div>
+          <div class="ktask"><div class="kname">Repérage marché</div><div class="ksub">Cuisine du monde</div></div>
+        </div>
+        <div class="kol">
+          <div class="kol-t">En cours</div>
+          <div class="ktask urg"><div class="kname">Montage Ep. 1 & 2</div><div class="ksub">Portraits · deadline 25 juin</div></div>
+          <div class="ktask"><div class="kname">Recherche locations</div><div class="ksub">Mode africaine</div></div>
+          <div class="ktask"><div class="kname">Rédaction synopsis</div><div class="ksub">Cuisine du monde</div></div>
+        </div>
+        <div class="kol">
+          <div class="kol-t">Terminé</div>
+          <div class="ktask" style="opacity:.5;"><div class="kname">Casting présentateurs</div><div class="ksub">L'Art de vivre</div></div>
+          <div class="ktask" style="opacity:.5;"><div class="kname">Budget prévisionnel</div><div class="ksub">Tous projets</div></div>
+          <div class="ktask" style="opacity:.5;"><div class="kname">Accord diffuseur</div><div class="ksub">Portraits de femmes</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <div class="page" id="scripts">
+      <div class="sech">
+        <span style="font-size:15px;font-weight:600;color:var(--tx);">Scripts & Contenus</span>
+        <button class="btn-add" onclick="nav(document.querySelectorAll('.tab')[0],'dash');engine('script')"><i class="ti ti-cpu"></i> Générer script</button>
+      </div>
+      <div class="slist">
+        <div class="sitem"><div class="snum">01</div><div><div style="font-size:13px;font-weight:600;color:var(--tx);">L'Art de vivre S2 — Épisode 3 <span class="nbadge">En cours</span></div><div style="font-size:11px;color:var(--tx2);margin-top:3px;">Thème : L'artisanat malgache · 24 min · 4 séquences</div></div></div>
+        <div class="sitem"><div class="snum">02</div><div><div style="font-size:13px;font-weight:600;color:var(--tx);">Portraits de femmes — Épisode final</div><div style="font-size:11px;color:var(--tx2);margin-top:3px;">Interview · 18 min · Montage en cours</div></div></div>
+        <div class="sitem"><div class="snum">03</div><div><div style="font-size:13px;font-weight:600;color:var(--tx);">Cuisine du monde — Épisode pilote <span class="nbadge">À rédiger</span></div><div style="font-size:11px;color:var(--tx2);margin-top:3px;">Concept validé · synopsis en attente</div></div></div>
+        <div class="sitem"><div class="snum">04</div><div><div style="font-size:13px;font-weight:600;color:var(--tx);">Mode africaine — Épisode 1</div><div style="font-size:11px;color:var(--tx2);margin-top:3px;">Première ébauche · révision nécessaire</div></div></div>
+      </div>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="page" id="budget">
+      <div class="sech">
+        <span style="font-size:15px;font-weight:600;color:var(--tx);">Budget & Dépenses</span>
+        <button class="btn-add" onclick="nav(document.querySelectorAll('.tab')[0],'dash');engine('budget')"><i class="ti ti-cpu"></i> Analyser</button>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">Répartition par projet</div>
+          <div class="budget-row"><span style="font-size:13px;color:var(--tx);flex:1;">L'Art de vivre S2</span><div class="b-track"><div class="b-fill" style="width:72%"></div></div><span style="font-size:12px;color:var(--tx2);min-width:36px;text-align:right;">72%</span></div>
+          <div class="budget-row"><span style="font-size:13px;color:var(--tx);flex:1;">Portraits de femmes</span><div class="b-track"><div class="b-fill" style="width:90%"></div></div><span style="font-size:12px;color:var(--tx2);min-width:36px;text-align:right;">90%</span></div>
+          <div class="budget-row"><span style="font-size:13px;color:var(--tx);flex:1;">Cuisine du monde</span><div class="b-track"><div class="b-fill" style="width:15%"></div></div><span style="font-size:12px;color:var(--tx2);min-width:36px;text-align:right;">15%</span></div>
+          <div class="budget-row"><span style="font-size:13px;color:var(--tx);flex:1;">Mode africaine</span><div class="b-track"><div class="b-fill" style="width:30%"></div></div><span style="font-size:12px;color:var(--tx2);min-width:36px;text-align:right;">30%</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="sc acc"><div class="sc-lbl">Budget total</div><div class="sc-val">100%</div><div class="sc-sub">Annuel alloué</div></div>
+          <div class="sc plain"><div class="sc-lbl">Dépensé</div><div class="sc-val">62%</div><div class="prog"><div class="prog-f" style="width:62%"></div></div></div>
+          <div class="sc plain"><div class="sc-lbl">Restant</div><div class="sc-val">38%</div><div class="sc-sub">Disponible</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Navigation & thème ──────────────────────────────────────────────
+function nav(btn,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+function theme(t,dot){
+  document.getElementById('app').setAttribute('data-theme',t);
+  document.querySelectorAll('.tdot').forEach(d=>d.classList.remove('sel'));
+  dot.classList.add('sel');
+}
+
+// ── Base de réponses contextuelles (algorithme premium) ────────────
+const KB = {
+  ideas:[
+    `💡 5 idées d'émissions pour votre catalogue :
+
+1. "Saveurs de Madagascar" — Tour gastronomique des régions, avec des chefs locaux et des producteurs. Format : 26 min, hebdomadaire.
+
+2. "Bâtisseurs d'Avenir" — Portraits d'entrepreneurs innovants qui transforment leur communauté. Format : 45 min, mensuel.
+
+3. "Madagascar Insolite" — Exploration des lieux méconnus et traditions rares de l'île. Format : 52 min, documentaire.
+
+4. "Génération Créative" — Compétition créative pour jeunes talents (musique, art, design). Format : 60 min, hebdomadaire.
+
+5. "Les Gardiens du Patrimoine" — Rencontre avec les artisans et gardiens des savoir-faire ancestraux. Format : 26 min, bimensuel.
+
+→ Recommandation : priorité aux formats 26 min (coût maîtrisé, forte diffusion).`,
+
+    `💡 3 concepts émission tendance :
+
+1. "Femmes Bâtisseuses" — Immersion chez des femmes qui dirigent des projets d'impact social. Très fort potentiel.
+
+2. "Cuisine Fusion Malgache" — Chefs revisitent des recettes traditionnelles avec des influences mondiales. Grand public.
+
+3. "La Route des Épices" — Road-trip culinaire et culturel entre villages producteurs. Format voyage premium.
+
+→ Ces formats s'adaptent bien à votre ligne éditoriale actuelle.`
+  ],
+
+  script:[
+    `📝 Structure script — Épisode pilote "Cuisine du monde" :
+
+ACTE 1 — Découverte (0–8 min)
+• Générique & présentation de la destination
+• Interview du chef local (contexte culturel)
+• Visite du marché / producteurs
+
+ACTE 2 — Immersion (8–18 min)
+• Préparation du plat emblématique (pas à pas)
+• Anecdotes historiques et culturelles
+• Dégustation avec habitants
+
+ACTE 3 — Transmission (18–24 min)
+• Recette simplifiée pour le public
+• Message de la communauté locale
+• Teaser épisode suivant
+
+→ Durée cible : 24 min | Tournage : 2 jours | Lieux : 3 max`,
+
+    `📝 Plan script — Épisode "L'Art de vivre S2" :
+
+SÉQUENCE 1 — Accroche (2 min)
+Scène d'ouverture forte, visuel marquant, voix off.
+
+SÉQUENCE 2 — Portrait (6 min)
+Présentation du protagoniste, son quotidien, sa passion.
+
+SÉQUENCE 3 — Découverte (10 min)
+Immersion dans son univers, savoir-faire, témoignages.
+
+SÉQUENCE 4 — Message (6 min)
+Réflexion, transmission, appel à l'action culturelle.
+
+→ Conseil : terminer chaque épisode avec une question ouverte pour engager le public.`
+  ],
+
+  checklist:[
+    `✅ Checklist tournage EXTÉRIEUR — Complète :
+
+MATÉRIEL TECHNIQUE
+☐ Caméra principale + caméra de secours
+☐ Cartes mémoire (x4 minimum)
+☐ Batteries chargées (x6) + chargeurs
+☐ Trépieds + stabilisateur (gimbal)
+☐ Microphone cravate + perche + bonnette vent
+☐ Enregistreur audio de secours
+☐ Éclairage LED portatif + réflecteurs
+
+LOGISTIQUE
+☐ Autorisation de tournage signée
+☐ Transport confirmé (heure + itinéraire)
+☐ Contacts invités confirmés (J-1)
+☐ Planning horaire imprimé (x3 exemplaires)
+☐ Eau + ravitaillement pour l'équipe
+☐ Trousse de premiers secours
+
+POST-TOURNAGE
+☐ Sauvegarde rushes (double support)
+☐ Fiche de tournage complétée
+☐ Inventaire matériel au retour`,
+
+    `✅ Checklist rapide — Tournage studio :
+
+AVANT
+☐ Studio réservé et confirmé
+☐ Décor installé et validé
+☐ Éclairage testé (température couleur)
+☐ Son calibré (niveau + réverb)
+☐ Prompteur chargé (texte final)
+
+PENDANT
+☐ Test son avant chaque prise
+☐ Backup enregistrement actif
+☐ Fiche de continuité tenue à jour
+
+APRÈS
+☐ Visionnage rapide des rushes clés
+☐ Sauvegarde immédiate
+☐ Débrief équipe (5 min)`
+  ],
+
+  budget:[
+    `💰 Analyse budget & recommandations :
+
+ÉTAT ACTUEL
+• Budget consommé global : 62% ✓
+• Portraits de femmes : 90% → attention, risque dépassement
+• L'Art de vivre S2 : 72% → dans les normes
+• Mode africaine : 30% → marge confortable
+
+ALERTES
+⚠️ "Portraits de femmes" proche du plafond. Réduire les frais de post-production ou négocier un avenant.
+
+OPTIMISATIONS RECOMMANDÉES
+1. Mutualiser les équipes entre tournages proches (économie 15–20%)
+2. Privilégier les locations demi-journée plutôt que journée complète
+3. Négocier un contrat cadre avec un prestataire technique pour la saison
+4. Utiliser des lieux publics (marchés, places) pour réduire les frais de studio
+
+→ Projection : bouclage budget annuel à 88% si ces mesures appliquées.`,
+
+    `💰 5 leviers d'optimisation budget TV :
+
+1. Pooling matériel — Louer en lot sur plusieurs tournages = -20% coût unitaire.
+2. Tournages groupés — Filmer 2 épisodes dans la même zone le même jour = -30% transport.
+3. Préproduction rigoureuse — Chaque heure de prépa évite 3h de tournage inutile.
+4. Contrats freelance cadre — Tarifs négociés sur la durée vs recrutement ponctuel.
+5. Post-prod locale — Privilege les monteurs locaux compétents vs agences externes.`
+  ],
+
+  planning:[
+    `📅 Suggestions planning — 2 prochaines semaines :
+
+SEMAINE 1 (14–20 juin)
+• 14 juin : L'Art de vivre S2 Ep.3 — Studio (confirmé ✓)
+• 16 juin : Réunion de production "Cuisine du monde" (à planifier)
+• 18 juin : Portraits de femmes — Interview extérieur (confirmé ✓)
+• 20 juin : Montage prioritaire Portraits Ep.1
+
+SEMAINE 2 (21–27 juin)
+• 22 juin : Repérage Cuisine du monde — Marché central
+• 24 juin : Finalisation montage Portraits (deadline 25 juin !)
+• 26 juin : Briefing équipe Mode africaine Ep.1
+• 27 juin : Tournage Mode africaine Ep.1 — Studio B
+
+→ Point critique : 25 juin deadline Portraits. Bloquer 24–25 juin uniquement pour ce montage.`,
+
+    `📅 Optimisation planning semaine :
+
+PRIORITÉ 1 — URGENT
+Montage "Portraits de femmes" Ep.1 & 2 : deadline 25 juin. Bloquer 2 jours pleins.
+
+PRIORITÉ 2 — IMPORTANT
+Script "L'Art de vivre" Ep.3 à finaliser avant le 13 juin (tournage le 14).
+
+PRIORITÉ 3 — PLANIFIER
+Repérage "Cuisine du monde" : idéalement avant le 22 juin pour valider les lieux.
+
+→ Conseil : éviter tout nouveau tournage avant le 26 juin pour ne pas surcharger la post-production.`
+  ]
+};
+
+// Réponses libres par mots-clés
+const FREE_KB = [
+  {keys:['idée','émission','concept','format','programme'], type:'ideas'},
+  {keys:['script','scénario','épisode','texte','rédiger','plan'], type:'script'},
+  {keys:['checklist','matériel','liste','tournage','équipement'], type:'checklist'},
+  {keys:['budget','dépense','coût','argent','financement','optimis'], type:'budget'},
+  {keys:['planning','agenda','calendrier','date','semaine','programme'], type:'planning'},
+];
+
+let counters = {};
+
+function getResponse(type){
+  if(!counters[type]) counters[type]=0;
+  const arr = KB[type];
+  const r = arr[counters[type] % arr.length];
+  counters[type]++;
+  return r;
+}
+
+function detectType(q){
+  const lower = q.toLowerCase();
+  for(const rule of FREE_KB){
+    if(rule.keys.some(k => lower.includes(k))) return rule.type;
+  }
+  return null;
+}
+
+// Effet frappe caractère par caractère
+function typeOut(text, el){
+  el.style.display='block';
+  el.textContent='';
+  let i=0;
+  const speed=12;
+  function tick(){
+    if(i<text.length){
+      el.textContent += text[i];
+      i++;
+      setTimeout(tick, speed);
+    }
+  }
+  tick();
+}
+
+function showLoading(){
+  document.getElementById('ai-load').style.display='block';
+  document.getElementById('ai-resp').style.display='none';
+}
+function hideLoading(){
+  document.getElementById('ai-load').style.display='none';
+}
+
+function engine(type){
+  nav(document.querySelectorAll('.tab')[0],'dash');
+  showLoading();
+  setTimeout(()=>{
+    hideLoading();
+    const resp = getResponse(type);
+    typeOut(resp, document.getElementById('ai-resp'));
+  }, 700 + Math.random()*400);
+}
+
+function engineFree(){
+  const q = document.getElementById('ai-q').value.trim();
+  if(!q) return;
+  document.getElementById('ai-q').value='';
+  const type = detectType(q);
+  nav(document.querySelectorAll('.tab')[0],'dash');
+  showLoading();
+  setTimeout(()=>{
+    hideLoading();
+    let resp;
+    if(type){
+      resp = getResponse(type);
+    } else {
+      resp = `🔍 Analyse de votre demande : "${q}"\n\nJe n'ai pas de modèle prédéfini pour cette requête.\n\n→ Conseil : reformulez avec un mot-clé comme "idée", "script", "checklist", "budget" ou "planning" pour une réponse optimisée.\n\nOu utilisez les raccourcis rapides ci-dessus pour des suggestions immédiates.`;
+    }
+    typeOut(resp, document.getElementById('ai-resp'));
+  }, 800 + Math.random()*500);
+}
+
+document.getElementById('ai-q').addEventListener('keydown', e=>{
+  if(e.key==='Enter') engineFree();
+});
+</script>
+</body>
+</html>
