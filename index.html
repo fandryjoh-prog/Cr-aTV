@@ -912,8 +912,87 @@ function addHist(q,r){
 }
 document.getElementById('ass-q').addEventListener('keydown',e=>{if(e.key==='Enter')engineFree();});
 
+// ── PERSISTANCE localStorage ──────────────────────────────────────
+const STORE_KEYS = { emissions:'creatv_emissions', taches:'creatv_taches', conducteurs:'creatv_conducteurs', nextId:'creatv_nextId', nextTId:'creatv_nextTId' };
+
+function save() {
+  try {
+    localStorage.setItem(STORE_KEYS.emissions,    JSON.stringify(emissions));
+    localStorage.setItem(STORE_KEYS.taches,       JSON.stringify(taches));
+    localStorage.setItem(STORE_KEYS.conducteurs,  JSON.stringify(CONDUCTEURS));
+    localStorage.setItem(STORE_KEYS.nextId,       nextId);
+    localStorage.setItem(STORE_KEYS.nextTId,      nextTId);
+  } catch(e) { console.warn('localStorage indisponible', e); }
+}
+
+function load() {
+  try {
+    const e  = localStorage.getItem(STORE_KEYS.emissions);
+    const t  = localStorage.getItem(STORE_KEYS.taches);
+    const c  = localStorage.getItem(STORE_KEYS.conducteurs);
+    const ni = localStorage.getItem(STORE_KEYS.nextId);
+    const nt = localStorage.getItem(STORE_KEYS.nextTId);
+    if (e)  emissions    = JSON.parse(e);
+    if (t)  taches       = JSON.parse(t);
+    if (c)  Object.assign(CONDUCTEURS, JSON.parse(c));
+    if (ni) nextId       = parseInt(ni);
+    if (nt) nextTId      = parseInt(nt);
+  } catch(e) { console.warn('Erreur chargement localStorage', e); }
+}
+
+// Patch toutes les fonctions qui modifient les données pour auto-sauvegarder
+const _saveEmission0 = saveEmission;
+saveEmission = function() { _saveEmission0(); save(); };
+
+const _deleteEmission0 = deleteEmission;
+deleteEmission = function(id) { _deleteEmission0(id); save(); };
+
+const _saveTache0 = saveTache;
+saveTache = function() { _saveTache0(); save(); };
+
+const _deleteTache0 = deleteTache;
+deleteTache = function(id) { _deleteTache0(id); save(); };
+
+const _saveRowEdit0 = saveRowEdit;
+saveRowEdit = function(i) { _saveRowEdit0(i); save(); };
+
+const _deleteRow0 = deleteRow;
+deleteRow = function(i) { _deleteRow0(i); save(); };
+
+const _addRow0 = addRow;
+addRow = function() { _addRow0(); save(); };
+
+// Bouton reset (optionnel, accessible via console : resetData())
+function resetData() {
+  if (!confirm('Réinitialiser toutes les données ? Cette action est irréversible.')) return;
+  Object.values(STORE_KEYS).forEach(k => localStorage.removeItem(k));
+  location.reload();
+}
+
 // ── INIT ──────────────────────────────────────────────────────────
-renderDash();
+load();       // charger les données sauvegardées
+renderDash(); // afficher
+
+// Indicateur de sauvegarde
+(function(){
+  const badge = document.createElement('div');
+  badge.id = 'save-badge';
+  badge.style.cssText = 'position:fixed;bottom:16px;right:16px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:5px 11px;font-size:11px;color:var(--tx2);font-family:inherit;box-shadow:var(--sh);display:flex;align-items:center;gap:5px;z-index:50;';
+  badge.innerHTML = '<i class="ti ti-device-floppy" style="color:var(--a);font-size:14px;"></i><span id="save-txt">Données sauvegardées</span>';
+  document.body.appendChild(badge);
+
+  // Flasher après chaque sauvegarde
+  const origSave = save;
+  save = function() {
+    origSave();
+    const txt = document.getElementById('save-txt');
+    if (txt) {
+      txt.textContent = '✓ Sauvegardé';
+      badge.style.borderColor = 'var(--a)';
+      setTimeout(() => { txt.textContent = 'Données sauvegardées'; badge.style.borderColor = 'var(--bd)'; }, 2000);
+    }
+  };
+})();
 </script>
 </body>
 </html>
