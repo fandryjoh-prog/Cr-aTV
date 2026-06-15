@@ -149,17 +149,32 @@ tr:hover td{background:var(--bg2);}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;border-radius:9px;padding:9px 18px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
 
-/* CONDUCTEUR POPUP */
+/* CONDUCTEUR EDITOR */
 .cond-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:14px;}
 .cond-overlay.open{display:flex;}
-.cond-box{background:var(--bg);border-radius:16px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
-.cond-hdr{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--bg);z-index:1;}
-.cond-body{padding:18px 22px 22px;}
-.cond-row{display:grid;grid-template-columns:100px 60px 1fr 1fr;gap:0;border-bottom:1px solid var(--bg3);}
-.cond-row:first-child{background:var(--ab);font-weight:700;color:var(--am);}
-.cond-cell{padding:9px 10px;font-size:12px;color:var(--tx);border-right:1px solid var(--bg3);}
-.cond-cell:last-child{border-right:none;}
-.cond-row:first-child .cond-cell{color:var(--am);font-weight:700;}
+.cond-box{background:var(--bg);border-radius:16px;width:100%;max-width:780px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);display:flex;flex-direction:column;}
+.cond-hdr{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--bg);z-index:1;flex-wrap:wrap;gap:8px;}
+.cond-body{padding:18px 20px 22px;flex:1;}
+/* table affichage */
+.cond-table{width:100%;border-collapse:collapse;margin-bottom:14px;}
+.cond-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--am);background:var(--ab);padding:9px 10px;text-align:left;border:1px solid var(--ab2);}
+.cond-table td{font-size:12px;color:var(--tx);padding:8px 10px;border:1px solid var(--bg3);vertical-align:top;}
+.cond-table tr:nth-child(even) td{background:var(--bg2);}
+.cond-table tr:hover td{background:var(--ab);cursor:pointer;}
+.cond-table .td-act{width:64px;text-align:center;white-space:nowrap;}
+/* ligne edit inline */
+.cond-edit-row td{background:var(--ab) !important;padding:6px 8px;}
+.cond-inp{width:100%;border:1.5px solid var(--ab2);border-radius:6px;padding:5px 8px;font-size:12px;color:var(--ad);background:rgba(255,255,255,.8);outline:none;font-family:inherit;}
+.cond-inp:focus{border-color:var(--a);}
+.btn-row-sm{border:none;border-radius:6px;padding:5px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;}
+.btn-row-sm.ok{background:var(--a);color:var(--ad);}
+.btn-row-sm.cancel{background:var(--bg3);color:var(--tx2);}
+.btn-row-sm.del{background:#FEE2E2;color:#DC2626;}
+.btn-row-sm.edit{background:var(--bg2);color:var(--tx2);border:1px solid var(--bd);}
+/* add row form */
+.cond-add-form{background:var(--bg2);border:1px dashed var(--bd);border-radius:10px;padding:14px;margin-top:4px;}
+.cond-add-grid{display:grid;grid-template-columns:110px 70px 1fr 1fr;gap:8px;margin-bottom:10px;}
+@media(max-width:600px){.cond-add-grid{grid-template-columns:1fr 1fr;}}
 
 /* RESPONSIVE */
 @media(max-width:768px){
@@ -246,14 +261,18 @@ tr:hover td{background:var(--bg2);}
   </div>
 </div>
 
-<!-- CONDUCTEUR POPUP -->
+<!-- CONDUCTEUR ÉDITEUR -->
 <div class="cond-overlay" id="cond-overlay">
   <div class="cond-box">
     <div class="cond-hdr">
-      <span class="modal-title" id="cond-title">Conducteur type</span>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div>
+        <div class="modal-title" id="cond-title">Conducteur type</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:2px;" id="cond-sub"></div>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;">
+        <button class="btn-export" onclick="toggleAddRow()" id="btn-add-row"><i class="ti ti-plus"></i>Ajouter une ligne</button>
         <a id="cond-dl-link" href="#" download style="text-decoration:none;">
-          <button class="btn-save" style="padding:7px 14px;font-size:12px;"><i class="ti ti-download"></i> Télécharger .docx</button>
+          <button class="btn-save" style="padding:7px 13px;font-size:12px;"><i class="ti ti-download"></i> .docx</button>
         </a>
         <button class="modal-close" onclick="closeCond()"><i class="ti ti-x"></i></button>
       </div>
@@ -522,7 +541,7 @@ function renderDash(){
   document.getElementById('dash-recents').innerHTML=[...emissions].reverse().slice(0,4).map(e=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bg3);">
       <div><div style="font-size:13px;font-weight:600;color:var(--tx);">${e.titre}</div><div style="font-size:11px;color:var(--tx2);margin-top:1px;">${e.genre}</div></div>
-      <div style="display:flex;gap:6px;align-items:center;">${BADGE[e.statut]||''}${e.conducteur?`<div class="icon-btn export" onclick="openCond('${e.conducteur}')" title="Voir conducteur"><i class="ti ti-file-description"></i></div>`:''}</div>
+      <div style="display:flex;gap:6px;align-items:center;">${BADGE[e.statut]||''}<div class="icon-btn export" onclick="openCond('${e.conducteur||'e'+e.id}')" title="Voir conducteur"><i class="ti ti-file-description"></i></div></div>
     </div>`).join('');
   const urgList=taches.filter(t=>t.urgent&&t.statut!=='done');
   document.getElementById('dash-urgent').innerHTML=urgList.length?urgList.map(t=>`
@@ -539,7 +558,7 @@ function renderEmissions(){
   document.getElementById('emissions-grid').innerHTML=list.map(e=>`
     <div class="ecard">
       <div class="ec-actions">
-        ${e.conducteur?`<div class="icon-btn export" onclick="openCond('${e.conducteur}')" title="Conducteur"><i class="ti ti-file-description"></i></div>`:''}
+        <div class="icon-btn export" onclick="openCond('${e.conducteur||'e'+e.id}')" title="Conducteur"><i class="ti ti-file-description"></i></div>
         <div class="icon-btn" onclick="openModalEdit(${e.id})" title="Modifier"><i class="ti ti-pencil"></i></div>
         <div class="icon-btn danger" onclick="deleteEmission(${e.id})" title="Supprimer"><i class="ti ti-trash"></i></div>
       </div>
@@ -566,7 +585,7 @@ function renderPlanning(){
       <td>${e.duree?e.duree+' min':'—'}</td>
       <td>${BADGE[e.statut]||''}</td>
       <td><div class="td-actions">
-        ${e.conducteur?`<div class="icon-btn export" onclick="openCond('${e.conducteur}')" title="Conducteur"><i class="ti ti-file-description"></i></div>`:''}
+        <div class="icon-btn export" onclick="openCond('${e.conducteur||'e'+e.id}')" title="Conducteur"><i class="ti ti-file-description"></i></div>
         <div class="icon-btn" onclick="openModalEdit(${e.id})"><i class="ti ti-pencil"></i></div>
         <div class="icon-btn danger" onclick="deleteEmission(${e.id})"><i class="ti ti-trash"></i></div>
       </div></td>
@@ -600,7 +619,7 @@ function renderScripts(){
         ${e.desc?`<div style="font-size:12px;color:var(--tx2);margin-top:5px;line-height:1.5;">${e.desc}</div>`:''}
       </div>
       <div style="display:flex;gap:6px;">
-        ${e.conducteur?`<button class="btn-export" onclick="openCond('${e.conducteur}')"><i class="ti ti-file-description"></i>Conducteur</button>`:''}
+        <button class="btn-export" onclick="openCond('${e.conducteur||'e'+e.id}')"><i class="ti ti-file-description"></i>Conducteur</button>
         <div class="icon-btn" onclick="openModalEdit(${e.id})"><i class="ti ti-pencil"></i></div>
       </div>
     </div>`).join('')}</div>`:'<div style="color:var(--tx2);font-size:13px;padding:20px 0;">Aucun script en cours. Créez une émission avec le statut "Script" ou "Tournage".</div>';
@@ -625,30 +644,158 @@ function renderBudget(){
     </div>`;
 }
 
-// ── CONDUCTEUR POPUP ─────────────────────────────────────────────
-function openCond(key){
-  const c=CONDUCTEURS[key];if(!c)return;
-  document.getElementById('cond-title').textContent=c.titre;
-  document.getElementById('cond-dl-link').href=c.docx;
-  document.getElementById('cond-dl-link').download=c.docx;
-  document.getElementById('cond-body').innerHTML=`
-    <div style="margin-bottom:14px;">
-      <div class="cond-row" style="font-weight:700;">
-        <div class="cond-cell">Horloge</div><div class="cond-cell">Durée</div>
-        <div class="cond-cell">Rubrique</div><div class="cond-cell">Notes réalisation</div>
-      </div>
-      ${c.rows.map((r,i)=>`<div class="cond-row" style="${i%2===0?'background:var(--bg2);':''}">
-        ${r.map(cell=>`<div class="cond-cell">${cell}</div>`).join('')}
-      </div>`).join('')}
-    </div>
-    <div style="font-size:12px;color:var(--tx2);padding:10px;background:var(--ab);border-radius:8px;">
-      <i class="ti ti-info-circle" style="color:var(--a);"></i>
-      Cliquez sur <strong>Télécharger .docx</strong> pour obtenir la version mise en page complète avec tableaux, en-têtes et checklists.
-    </div>`;
+// ── CONDUCTEUR ÉDITEUR ───────────────────────────────────────────
+let activeCond = null; // clé émission courante
+let editingRowIdx = null; // index ligne en cours d'édition
+let showingAddRow = false;
+
+function openCond(key) {
+  // Si pas de conducteur existant, créer un vide
+  if (!CONDUCTEURS[key]) {
+    const e = emissions.find(x => x.conducteur === key) || emissions.find(x => x.id === parseInt(key.replace('e','')));
+    CONDUCTEURS[key] = {
+      titre: (e ? e.titre : key) + ' — Conducteur type',
+      docx: '',
+      rows: []
+    };
+    if (e && !e.conducteur) e.conducteur = key;
+  }
+  const c = CONDUCTEURS[key];
+  activeCond = key;
+  editingRowIdx = null;
+  showingAddRow = false;
+  document.getElementById('cond-title').textContent = c.titre;
+  document.getElementById('cond-sub').textContent = `${c.rows.length} segment(s) — cliquez sur une ligne pour la modifier`;
+  document.getElementById('cond-dl-link').href = c.docx;
+  document.getElementById('cond-dl-link').download = c.docx;
+  document.getElementById('btn-add-row').innerHTML = '<i class="ti ti-plus"></i>Ajouter une ligne';
+  renderCondTable();
   document.getElementById('cond-overlay').classList.add('open');
 }
-function closeCond(){document.getElementById('cond-overlay').classList.remove('open');}
-document.getElementById('cond-overlay').addEventListener('click',function(e){if(e.target===this)closeCond();});
+
+function renderCondTable() {
+  const c = CONDUCTEURS[activeCond];
+  const rows = c.rows;
+  let html = `
+    <table class="cond-table">
+      <thead><tr>
+        <th style="width:110px;">Horloge</th>
+        <th style="width:70px;">Durée</th>
+        <th>Rubrique / Contenu</th>
+        <th>Notes réalisation</th>
+        <th style="width:64px;text-align:center;">Actions</th>
+      </tr></thead>
+      <tbody id="cond-tbody">`;
+
+  rows.forEach((r, i) => {
+    if (editingRowIdx === i) {
+      html += `<tr class="cond-edit-row" id="edit-row-${i}">
+        <td><input class="cond-inp" id="cr-0" value="${escHtml(r[0])}" placeholder="ex: 00:00–02:00"/></td>
+        <td><input class="cond-inp" id="cr-1" value="${escHtml(r[1])}" placeholder="ex: 2 min"/></td>
+        <td><input class="cond-inp" id="cr-2" value="${escHtml(r[2])}" placeholder="Rubrique…"/></td>
+        <td><input class="cond-inp" id="cr-3" value="${escHtml(r[3])}" placeholder="Notes…"/></td>
+        <td style="text-align:center;">
+          <button class="btn-row-sm ok" onclick="saveRowEdit(${i})"><i class="ti ti-check"></i></button>
+          <button class="btn-row-sm cancel" onclick="cancelRowEdit()" style="margin-top:3px;"><i class="ti ti-x"></i></button>
+        </td>
+      </tr>`;
+    } else {
+      html += `<tr onclick="startRowEdit(${i})">
+        <td>${escHtml(r[0])}</td>
+        <td>${escHtml(r[1])}</td>
+        <td>${escHtml(r[2])}</td>
+        <td>${escHtml(r[3])}</td>
+        <td class="td-act">
+          <button class="btn-row-sm edit" onclick="event.stopPropagation();startRowEdit(${i})" title="Modifier"><i class="ti ti-pencil"></i></button>
+          <button class="btn-row-sm del" onclick="event.stopPropagation();deleteRow(${i})" title="Supprimer" style="margin-top:3px;"><i class="ti ti-trash"></i></button>
+        </td>
+      </tr>`;
+    }
+  });
+
+  html += `</tbody></table>`;
+
+  // Formulaire ajout
+  html += `<div class="cond-add-form" id="add-row-form" style="display:${showingAddRow ? 'block' : 'none'};">
+    <div style="font-size:12px;font-weight:700;color:var(--am);margin-bottom:10px;"><i class="ti ti-plus"></i> Nouvelle ligne</div>
+    <div class="cond-add-grid">
+      <div><label class="fl" style="font-size:10px;">Horloge</label><input class="fi" id="nr-0" placeholder="ex: 40:00–45:00"/></div>
+      <div><label class="fl" style="font-size:10px;">Durée</label><input class="fi" id="nr-1" placeholder="5 min"/></div>
+      <div><label class="fl" style="font-size:10px;">Rubrique / Contenu</label><input class="fi" id="nr-2" placeholder="Nom de la rubrique…"/></div>
+      <div><label class="fl" style="font-size:10px;">Notes réalisation</label><input class="fi" id="nr-3" placeholder="Instructions pour la réalisation…"/></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-save" style="font-size:12px;padding:7px 14px;" onclick="addRow()"><i class="ti ti-check"></i> Ajouter</button>
+      <button class="btn-cancel" style="font-size:12px;padding:7px 14px;" onclick="toggleAddRow()">Annuler</button>
+    </div>
+  </div>`;
+
+  // Hint
+  html += `<div style="font-size:11px;color:var(--tx2);margin-top:12px;padding:8px 12px;background:var(--bg2);border-radius:8px;">
+    <i class="ti ti-info-circle" style="color:var(--a);"></i>
+    Cliquez sur une ligne pour la modifier · <strong>Télécharger .docx</strong> pour la version mise en page complète.
+  </div>`;
+
+  document.getElementById('cond-body').innerHTML = html;
+  document.getElementById('cond-sub').textContent = `${rows.length} segment(s) — cliquez sur une ligne pour la modifier`;
+}
+
+function startRowEdit(i) {
+  editingRowIdx = i;
+  showingAddRow = false;
+  renderCondTable();
+  setTimeout(() => document.getElementById('cr-2')?.focus(), 50);
+}
+
+function cancelRowEdit() {
+  editingRowIdx = null;
+  renderCondTable();
+}
+
+function saveRowEdit(i) {
+  const vals = [0,1,2,3].map(n => document.getElementById('cr-'+n)?.value.trim() || '');
+  if (!vals[2]) { showToast('La rubrique est obligatoire'); return; }
+  CONDUCTEURS[activeCond].rows[i] = vals;
+  editingRowIdx = null;
+  renderCondTable();
+  showToast('Ligne mise à jour ✓');
+}
+
+function deleteRow(i) {
+  if (!confirm('Supprimer cette ligne du conducteur ?')) return;
+  CONDUCTEURS[activeCond].rows.splice(i, 1);
+  editingRowIdx = null;
+  renderCondTable();
+  showToast('Ligne supprimée');
+}
+
+function toggleAddRow() {
+  showingAddRow = !showingAddRow;
+  editingRowIdx = null;
+  document.getElementById('btn-add-row').innerHTML = showingAddRow
+    ? '<i class="ti ti-minus"></i>Annuler'
+    : '<i class="ti ti-plus"></i>Ajouter une ligne';
+  renderCondTable();
+  if (showingAddRow) setTimeout(() => document.getElementById('nr-0')?.focus(), 50);
+}
+
+function addRow() {
+  const vals = [0,1,2,3].map(n => document.getElementById('nr-'+n)?.value.trim() || '');
+  if (!vals[2]) { showToast('La rubrique est obligatoire'); return; }
+  CONDUCTEURS[activeCond].rows.push(vals);
+  showingAddRow = false;
+  document.getElementById('btn-add-row').innerHTML = '<i class="ti ti-plus"></i>Ajouter une ligne';
+  renderCondTable();
+  showToast('Ligne ajoutée ✓');
+}
+
+function closeCond() {
+  document.getElementById('cond-overlay').classList.remove('open');
+  editingRowIdx = null;
+  showingAddRow = false;
+}
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+document.getElementById('cond-overlay').addEventListener('click', function(e) { if (e.target === this) closeCond(); });
 
 // ── MODAL ÉMISSION ────────────────────────────────────────────────
 function openModalNew(){
